@@ -1,36 +1,97 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Plantfolio 🌱
+
+A minimalist portfolio site for plant photography built with Next.js 14, TypeScript, and Tailwind CSS.
+
+## Features
+
+- **Responsive Design**: Mobile-first approach with clean, modern typography
+- **Plant Gallery**: Grid layout showcasing plant thumbnails
+- **Plant Details**: Individual pages with comprehensive plant information
+- **Modern UI**: Built with shadcn/ui components and Tailwind CSS
+- **TypeScript**: Full type safety throughout the application
+- **App Router**: Next.js 14 App Router for optimal performance
+
+## Tech Stack
+
+- **Framework**: Next.js 14 with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **UI Components**: shadcn/ui
+- **Icons**: Lucide React
+- **Deployment**: Vercel-ready
 
 ## Getting Started
 
-First, run the development server:
+1. **Install dependencies**:
+   ```bash
+   npm install
+   ```
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+2. **Run the development server**:
+   ```bash
+   npm run dev
+   ```
+
+3. **Open your browser**:
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+## Project Structure
+
+```
+src/
+├── app/                    # Next.js App Router pages
+│   ├── plant/[id]/        # Dynamic plant detail pages
+│   ├── layout.tsx         # Root layout with navbar
+│   └── page.tsx           # Home page with plant grid
+├── components/
+│   ├── layout/            # Layout components
+│   │   └── navbar.tsx     # Navigation bar
+│   ├── plant/             # Plant-specific components
+│   │   └── plant-card.tsx # Plant card for grid display
+│   └── ui/                # shadcn/ui components
+├── data/
+│   └── plants.ts          # Sample plant data
+├── types/
+│   └── plant.ts           # TypeScript type definitions
+└── lib/
+    └── utils.ts           # Utility functions
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Pages
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Home (`/`)**: Displays a responsive grid of plant thumbnails
+- **Plant Detail (`/plant/[id]`)**: Dynamic route for individual plant information
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Customization
 
-## Learn More
+### Adding New Plants
 
-To learn more about Next.js, take a look at the following resources:
+1. Update the `Plant` interface in `src/types/plant.ts` if needed
+2. Add new plant data to `src/data/plants.ts`
+3. The grid and detail pages will automatically include the new plants
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Styling
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Global styles are in `src/app/globals.css`
+- Component-specific styles use Tailwind CSS classes
+- shadcn/ui theme can be customized in `components.json`
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This project is optimized for deployment on Vercel:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Push your code to GitHub
+2. Connect your repository to Vercel
+3. Deploy with zero configuration
+
+The app is fully static and will work perfectly on Vercel's edge network.
+
+## Development
+
+- **Linting**: `npm run lint`
+- **Build**: `npm run build`
+- **Start**: `npm start`
+
+## License
+
+MIT License - feel free to use this project as a starting point for your own portfolio!
