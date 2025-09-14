@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { samplePlants } from '@/data/plants';
 import { Plant } from '@/types/plant';
 
 interface PlantDetailPageProps {
@@ -9,14 +8,30 @@ interface PlantDetailPageProps {
   }>;
 }
 
-// This would typically be an API call in a real app
-function getPlantById(id: string): Plant | undefined {
-  return samplePlants.find(plant => plant.id === id);
+async function getPlantById(id: string): Promise<Plant | null> {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/plants/${id}`, {
+      cache: 'no-store' // Always fetch fresh data
+    });
+    
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null;
+      }
+      throw new Error('Failed to fetch plant');
+    }
+    
+    const data = await response.json();
+    return data.success ? data.data : null;
+  } catch (error) {
+    console.error('Error fetching plant:', error);
+    return null;
+  }
 }
 
 export default async function PlantDetailPage({ params }: PlantDetailPageProps) {
   const { id } = await params;
-  const plant = getPlantById(id);
+  const plant = await getPlantById(id);
 
   if (!plant) {
     notFound();
@@ -33,6 +48,21 @@ export default async function PlantDetailPage({ params }: PlantDetailPageProps) 
           <p className="text-lg text-muted-foreground italic">
             {plant.scientificName}
           </p>
+          {plant.plantaData && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              <span className="text-sm px-2 py-1 bg-secondary rounded-full">
+                {plant.plantaData.site.name}
+              </span>
+              <span className={`text-sm px-2 py-1 rounded-full ${
+                plant.plantaData.health === 'excellent' ? 'bg-green-100 text-green-800' :
+                plant.plantaData.health === 'good' ? 'bg-blue-100 text-blue-800' :
+                plant.plantaData.health === 'fair' ? 'bg-yellow-100 text-yellow-800' :
+                'bg-red-100 text-red-800'
+              }`}>
+                {plant.plantaData.health} health
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Photo Timeline */}
@@ -74,6 +104,64 @@ export default async function PlantDetailPage({ params }: PlantDetailPageProps) 
             ))}
           </div>
         </div>
+
+        {/* Planta API Data (if available) */}
+        {plant.plantaData && (
+          <div className="mt-12 space-y-8">
+            <h2 className="text-2xl font-semibold text-foreground">Care Information</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Environment */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Environment</h3>
+                <div className="space-y-2 text-sm">
+                  <div>
+                    <span className="font-medium">Location:</span> {plant.plantaData.site.name}
+                  </div>
+                  <div>
+                    <span className="font-medium">Light:</span> {plant.plantaData.environment.light.distanceFromWindow}m from window
+                  </div>
+                  <div>
+                    <span className="font-medium">Grow Light:</span> {plant.plantaData.environment.light.hasGrowLight ? 'Yes' : 'No'}
+                  </div>
+                  <div>
+                    <span className="font-medium">Pot Type:</span> {plant.plantaData.environment.pot.type}
+                  </div>
+                  <div>
+                    <span className="font-medium">Soil:</span> {plant.plantaData.environment.pot.soil}
+                  </div>
+                </div>
+              </div>
+
+              {/* Next Actions */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Next Actions</h3>
+                <div className="space-y-2 text-sm">
+                  {plant.plantaData.actions.watering.next?.date && (
+                    <div>
+                      <span className="font-medium">Watering:</span> {new Date(plant.plantaData.actions.watering.next.date).toLocaleDateString()}
+                    </div>
+                  )}
+                  {plant.plantaData.actions.fertilizing.next?.date && (
+                    <div>
+                      <span className="font-medium">Fertilizing:</span> {new Date(plant.plantaData.actions.fertilizing.next.date).toLocaleDateString()}
+                    </div>
+                  )}
+                  {plant.plantaData.actions.repotting.next?.date && (
+                    <div>
+                      <span className="font-medium">Repotting:</span> {new Date(plant.plantaData.actions.repotting.next.date).toLocaleDateString()}
+                    </div>
+                  )}
+                  {plant.plantaData.actions.cleaning.next?.date && (
+                    <div>
+                      <span className="font-medium">Cleaning:</span> {new Date(plant.plantaData.actions.cleaning.next.date).toLocaleDateString()}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

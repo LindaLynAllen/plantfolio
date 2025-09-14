@@ -1,7 +1,27 @@
-import { samplePlants } from '@/data/plants';
 import PlantCard from '@/components/plant/plant-card';
+import { Plant } from '@/types/plant';
 
-export default function Home() {
+async function getPlants(): Promise<Plant[]> {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/plants`, {
+      cache: 'no-store' // Always fetch fresh data
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch plants');
+    }
+    
+    const data = await response.json();
+    return data.success ? data.data : [];
+  } catch (error) {
+    console.error('Error fetching plants:', error);
+    return [];
+  }
+}
+
+export default async function Home() {
+  const plants = await getPlants();
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Hero Section */}
@@ -16,11 +36,19 @@ export default function Home() {
       </div>
 
       {/* Plant Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-        {samplePlants.map((plant) => (
-          <PlantCard key={plant.id} plant={plant} />
-        ))}
-      </div>
+      {plants.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          {plants.map((plant) => (
+            <PlantCard key={plant.id} plant={plant} />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">
+            No plants found. Please check your Planta API configuration.
+          </p>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="text-center py-8 border-t">

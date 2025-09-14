@@ -5,8 +5,10 @@ A minimalist portfolio site for plant photography built with Next.js 14, TypeScr
 ## Features
 
 - **Responsive Design**: Mobile-first approach with clean, modern typography
-- **Plant Gallery**: Grid layout showcasing plant thumbnails
-- **Plant Details**: Individual pages with comprehensive plant information
+- **Plant Gallery**: Grid layout showcasing plant thumbnails from Planta API
+- **Plant Details**: Individual pages with comprehensive plant information and care schedules
+- **Real-time Data**: Live integration with Planta API for up-to-date plant information
+- **Care Tracking**: Display watering, fertilizing, and other care schedules
 - **Modern UI**: Built with shadcn/ui components and Tailwind CSS
 - **TypeScript**: Full type safety throughout the application
 - **App Router**: Next.js 14 App Router for optimal performance
@@ -18,6 +20,7 @@ A minimalist portfolio site for plant photography built with Next.js 14, TypeScr
 - **Styling**: Tailwind CSS
 - **UI Components**: shadcn/ui
 - **Icons**: Lucide React
+- **API Integration**: Planta API for real plant data
 - **Deployment**: Vercel-ready
 
 ## Getting Started
@@ -27,12 +30,22 @@ A minimalist portfolio site for plant photography built with Next.js 14, TypeScr
    npm install
    ```
 
-2. **Run the development server**:
+2. **Set up Planta API credentials**:
+   ```bash
+   # Copy the environment template
+   cp .env.example .env.local
+   
+   # Edit .env.local and add your Planta API tokens
+   # PLANTA_ACCESS_TOKEN=your_access_token_here
+   # PLANTA_REFRESH_TOKEN=your_refresh_token_here
+   ```
+
+3. **Run the development server**:
    ```bash
    npm run dev
    ```
 
-3. **Open your browser**:
+4. **Open your browser**:
    Navigate to [http://localhost:3000](http://localhost:3000)
 
 ## Project Structure
