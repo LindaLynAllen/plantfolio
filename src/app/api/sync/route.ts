@@ -23,8 +23,8 @@ class PlantaApiClient {
   }
 
   async getAllPlants() {
-    let allPlants = []
-    let nextPage = null
+    let allPlants: any[] = []
+    let nextPage: string | null = null
     let pageCount = 0
 
     do {
