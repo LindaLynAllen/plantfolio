@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Plantfolio - A Minimalist Plant Portfolio",
-  description: "Discover and learn about beautiful houseplants in this minimalist portfolio gallery.",
+  title: "Plantfolio - Linda's Plant Portfolio",
+  description: "Welcome to my personal plant gallery featuring over 50 houseplants.",
 };
 
 export default function RootLayout({
