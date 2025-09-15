@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { PlantaPlant, PlantaPlantsResponse } from '@/types/planta-api'
 
 // Create admin client for sync operations
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -23,7 +24,7 @@ class PlantaApiClient {
   }
 
   async getAllPlants() {
-    let allPlants: any[] = []
+    let allPlants: PlantaPlant[] = []
     let nextPage: string | null = null
     let pageCount = 0
 
@@ -41,7 +42,7 @@ class PlantaApiClient {
         throw new Error(`Planta API error: ${response.status} ${response.statusText}`)
       }
 
-      const data = await response.json()
+      const data: PlantaPlantsResponse = await response.json()
       allPlants = allPlants.concat(data.data)
       nextPage = data.pagination?.nextPage || null
       pageCount++
