@@ -4,8 +4,9 @@ import { Github, Mail } from 'lucide-react';
 
 async function getPlants(): Promise<Plant[]> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/plants`, {
-      cache: 'no-store' // Always fetch fresh data
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const response = await fetch(`${baseUrl}/api/plants`, {
+      next: { revalidate: 60 } // Revalidate every 60 seconds
     });
     
     if (!response.ok) {

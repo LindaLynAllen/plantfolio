@@ -4,8 +4,9 @@ import { Plant } from '@/types/plant';
 
 async function getPlant(id: string): Promise<Plant | null> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/plants/${id}`, {
-      cache: 'no-store'
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const response = await fetch(`${baseUrl}/api/plants/${id}`, {
+      next: { revalidate: 60 } // Revalidate every 60 seconds
     });
     
     if (!response.ok) {
