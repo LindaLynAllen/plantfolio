@@ -2,11 +2,18 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { Plant } from '@/types/plant';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 async function getPlant(id: string): Promise<Plant | null> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    // Use the deployed URL for production, localhost for development
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://plantfolio-omega.vercel.app'
+      : 'http://localhost:3000';
+    
     const response = await fetch(`${baseUrl}/api/plants/${id}`, {
-      next: { revalidate: 60 } // Revalidate every 60 seconds
+      cache: 'no-store' // Always fetch fresh data
     });
     
     if (!response.ok) {

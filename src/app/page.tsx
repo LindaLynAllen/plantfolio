@@ -2,11 +2,18 @@ import PlantCard from '@/components/plant/plant-card';
 import { Plant } from '@/types/plant';
 import { Github, Mail } from 'lucide-react';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 async function getPlants(): Promise<Plant[]> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    // Use the deployed URL for production, localhost for development
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://plantfolio-omega.vercel.app'
+      : 'http://localhost:3000';
+    
     const response = await fetch(`${baseUrl}/api/plants`, {
-      next: { revalidate: 10 } // Revalidate every 10 seconds
+      cache: 'no-store' // Always fetch fresh data
     });
     
     if (!response.ok) {
