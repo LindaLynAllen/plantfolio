@@ -23,18 +23,42 @@ class PlantaApiClient {
   }
 
   async getAllPlants() {
-    const response = await fetch(`${this.baseUrl}/addedPlants`, {
-      headers: {
-        'Authorization': `Bearer ${this.accessToken}`,
-        'Content-Type': 'application/json',
-      },
-    })
+    let allPlants = []
+    let nextPage = null
+    let pageCount = 0
 
-    if (!response.ok) {
-      throw new Error(`Planta API error: ${response.status} ${response.statusText}`)
+    do {
+      const url = nextPage ? `${this.baseUrl}/addedPlants?cursor=${nextPage}` : `${this.baseUrl}/addedPlants`
+      
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${this.accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error(`Planta API error: ${response.status} ${response.statusText}`)
+      }
+
+      const data = await response.json()
+      allPlants = allPlants.concat(data.data)
+      nextPage = data.pagination?.nextPage || null
+      pageCount++
+
+      console.log(`Fetched page ${pageCount}, ${data.data.length} plants, total: ${allPlants.length}`)
+      
+      // Safety check to prevent infinite loops
+      if (pageCount > 50) {
+        console.warn('Stopping pagination after 50 pages to prevent infinite loop')
+        break
+      }
+    } while (nextPage)
+
+    return {
+      data: allPlants,
+      pagination: { totalPages: pageCount, totalPlants: allPlants.length }
     }
-
-    return response.json()
   }
 }
 
@@ -130,10 +154,12 @@ export async function POST() {
       success: true,
       message: `Sync completed successfully`,
       stats: {
-        totalPlants: plantaPlants.length,
+        totalPlantsFromAPI: plantaPlants.length,
+        totalPagesFetched: response.pagination.totalPages,
         syncedPlants: syncedCount,
         newPlants: newPlantsCount,
-        newPhotos: newPhotosCount
+        newPhotos: newPhotosCount,
+        existingPlants: syncedCount - newPlantsCount
       }
     })
   } catch (error) {
