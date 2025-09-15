@@ -1,5 +1,6 @@
 import PlantCard from '@/components/plant/plant-card';
 import { Plant } from '@/types/plant';
+import { Github, Mail } from 'lucide-react';
 
 async function getPlants(): Promise<Plant[]> {
   try {
@@ -27,17 +28,16 @@ export default async function Home() {
       {/* Hero Section */}
       <div className="text-center mb-12">
         <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4">
-          Plantfolio
+          My Plant Collection
         </h1>
         <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-          Discover the beauty of houseplants through our curated collection. 
-          Learn about care, growth, and the joy of plant parenthood.
+          Welcome to my personal plant gallery featuring over 50 houseplants.
         </p>
       </div>
 
       {/* Plant Grid */}
       {plants.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mb-12">
           {plants.map((plant) => (
             <PlantCard key={plant.id} plant={plant} />
           ))}
@@ -52,8 +52,26 @@ export default async function Home() {
 
       {/* Footer */}
       <footer className="text-center py-8 border-t">
+        <div className="flex justify-center items-center space-x-4 mb-4">
+          <a 
+            href="mailto:lindalynallen@gmail.com" 
+            className="text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Email"
+          >
+            <Mail className="h-5 w-5" />
+          </a>
+          <a 
+            href="https://github.com/lindalynallen" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="GitHub"
+          >
+            <Github className="h-5 w-5" />
+          </a>
+        </div>
         <p className="text-sm text-muted-foreground">
-          © 2024 Plantfolio. A minimalist plant portfolio.
+          © 2025 Built with Next.js, Tailwind CSS, and ❤️ for Plants.
         </p>
       </footer>
     </div>

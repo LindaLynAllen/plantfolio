@@ -10,7 +10,7 @@ interface PlantCardProps {
 export default function PlantCard({ plant }: PlantCardProps) {
   return (
     <Link href={`/plant/${plant.id}`} className="group">
-      <Card className="h-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02]">
+      <Card className="h-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02] py-0 gap-0">
         <CardHeader className="p-0">
           <div className="relative aspect-square overflow-hidden">
             <Image
@@ -22,8 +22,13 @@ export default function PlantCard({ plant }: PlantCardProps) {
             />
           </div>
         </CardHeader>
-        <CardContent className="p-4">
+        <CardContent className="p-3">
           <h3 className="font-semibold text-lg">{plant.name}</h3>
+          {plant.scientificName && (
+            <p className="text-sm text-muted-foreground italic mt-1">
+              {plant.scientificName}
+            </p>
+          )}
         </CardContent>
       </Card>
     </Link>

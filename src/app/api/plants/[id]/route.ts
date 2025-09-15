@@ -27,12 +27,13 @@ export async function GET(
       data: plant
     });
   } catch (error) {
-    console.error('Error fetching plant:', error);
+    console.error('Error fetching plant:', error instanceof Error ? error.message : 'Unknown error');
     
     return NextResponse.json(
       { 
         success: false, 
-        error: error instanceof Error ? error.message : 'Failed to fetch plant' 
+        error: 'Failed to fetch plant',
+        message: error instanceof Error ? error.message : 'Unknown error occurred'
       },
       { status: 500 }
     );

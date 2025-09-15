@@ -4,6 +4,7 @@ import { plantaToPlant } from '@/types/plant';
 
 export async function GET() {
   try {
+    // Try to use Planta API if configured
     const apiClient = createPlantaApiClient();
     const response = await apiClient.getAllPlants();
     
@@ -16,14 +17,13 @@ export async function GET() {
       pagination: response.pagination
     });
   } catch (error) {
-    console.error('Error fetching plants:', error);
+    console.error('Error fetching plants:', error instanceof Error ? error.message : 'Unknown error');
     
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to fetch plants' 
-      },
-      { status: 500 }
-    );
+    // Return error when Planta API is not available
+    return NextResponse.json({
+      success: false,
+      error: 'Failed to fetch plants',
+      message: error instanceof Error ? error.message : 'Unknown error occurred'
+    }, { status: 500 });
   }
 }
