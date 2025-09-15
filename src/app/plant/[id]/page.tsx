@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { Plant } from '@/types/plant';
+import { PhotoGallery } from '@/components/plant/photo-gallery';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -169,6 +170,11 @@ export default async function PlantPage({ params }: PlantPageProps) {
               </div>
             )}
           </div>
+        </div>
+
+        {/* Photo Gallery Section */}
+        <div className="mt-12">
+          <PhotoGallery photos={plant.photos} plantName={plant.name} />
         </div>
       </div>
     </div>
