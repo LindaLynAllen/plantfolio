@@ -6,7 +6,7 @@ async function getPlants(): Promise<Plant[]> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     const response = await fetch(`${baseUrl}/api/plants`, {
-      next: { revalidate: 60 } // Revalidate every 60 seconds
+      next: { revalidate: 10 } // Revalidate every 10 seconds
     });
     
     if (!response.ok) {
@@ -46,7 +46,7 @@ export default async function Home() {
       ) : (
         <div className="text-center py-12">
           <p className="text-muted-foreground">
-            No plants found. Please check your Planta API configuration.
+            No plants found. Add some plants to your database to get started!
           </p>
         </div>
       )}
