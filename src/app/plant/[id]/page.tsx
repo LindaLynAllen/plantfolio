@@ -55,7 +55,7 @@ export default async function PlantPage({ params }: PlantPageProps) {
             {plant.name}
           </h1>
           {plant.scientificName && (
-            <p className="text-lg text-muted-foreground italic">
+            <p className="text-lg text-muted-foreground italic mt-0">
               {plant.scientificName}
             </p>
           )}
@@ -80,7 +80,7 @@ export default async function PlantPage({ params }: PlantPageProps) {
             {plant.plantaData && (
               <>
                 {/* Basic Info */}
-                <div className="bg-card/50 p-4 rounded-2xl">
+                <div className="bg-card/50 p-4 rounded-2xl border border-border/50">
                   <h2 className="text-lg font-semibold mb-3 text-foreground">Plant Information</h2>
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
@@ -99,7 +99,7 @@ export default async function PlantPage({ params }: PlantPageProps) {
                 </div>
 
                 {/* Care Schedule */}
-                <div className="bg-card/50 p-4 rounded-2xl">
+                <div className="bg-card/50 p-4 rounded-2xl border border-border/50">
                   <h2 className="text-lg font-semibold mb-3 text-foreground">Care Schedule</h2>
                   <div className="space-y-2">
                     {plant.plantaData.actions.watering.next && (
@@ -130,7 +130,7 @@ export default async function PlantPage({ params }: PlantPageProps) {
                 </div>
 
                 {/* Environment */}
-                <div className="bg-card/50 p-4 rounded-2xl">
+                <div className="bg-card/50 p-4 rounded-2xl border border-border/50">
                   <h2 className="text-lg font-semibold mb-3 text-foreground">Environment</h2>
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
@@ -163,7 +163,7 @@ export default async function PlantPage({ params }: PlantPageProps) {
 
             {/* Fallback for plants without detailed data */}
             {!plant.plantaData && (
-              <div className="bg-card/50 p-4 rounded-2xl">
+              <div className="bg-card/50 p-4 rounded-2xl border border-border/50">
                 <p className="text-muted-foreground text-center">
                   Error: Plant data is missing or incomplete.
                 </p>
