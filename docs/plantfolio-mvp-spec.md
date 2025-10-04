@@ -47,7 +47,7 @@ A public website that showcases the user's collection of 50+ house plants. It se
 
 - **Navbar**: Logo and site title "Plantfolio"
 - **Back Link**: "← Back to Collection"
-- **Header**: 
+- **Header**:
   - Display `customName` as main title (with fallback: `commonName` → `scientificName` if empty)
   - Display `scientificName` as subtitle (plain text, not italicized)
   - Display `location` below species (e.g., "📍 Living Room Shelf")
@@ -161,11 +161,11 @@ The sync job must check and refresh tokens before making API calls:
 
 1. **Before each sync**: Query the `tokens` table from Supabase
 2. **Check expiration**: If `expires_at` is within 5 minutes, refresh proactively
-3. **Refresh tokens**: 
+3. **Refresh tokens**:
    - Call Planta API refresh endpoint: `POST /v1/auth/refreshToken` with current refresh token
    - Planta returns new `{ accessToken, refreshToken, expiresAt }`
    - Update `tokens` table with new values and `expires_at`
-4. **Handle refresh failure**: 
+4. **Handle refresh failure**:
    - If refresh token is expired/invalid, log critical error to `sync_logs`
    - Sync job should exit gracefully with status 'failed'
    - Check logs manually and re-authenticate via OAuth flow if needed
@@ -176,18 +176,20 @@ The sync job must check and refresh tokens before making API calls:
 **Authentication Type:** Custom OTP (One-Time Password) flow - no client ID/secret required
 
 **High-Level Process:**
+
 1. Create app in Planta App Portal (`https://getplanta.com/apps`)
 2. Copy OTP code (valid 15 minutes, shown once)
 3. Exchange code for tokens via `POST /v1/auth/authorize`
 4. Store access token, refresh token, and expiry in Supabase `tokens` table
 
 **Important Notes:**
+
 - OTP codes expire after 15 minutes and are shown only once
 - Up to 5 apps per Planta account
 - Apps can be revoked from portal at any time
 - Access tokens last ~1 hour; refresh tokens are long-lived
 
-**📖 Detailed Setup Instructions:** See `docs/AUTHENTICATION_SETUP.md` for complete step-by-step guide with curl commands, SQL examples, and troubleshooting
+**📖 Detailed Setup Instructions:** See `docs/authentication-setup.md` for complete step-by-step guide with curl commands, SQL examples, and troubleshooting
 
 #### Security Requirements
 
@@ -213,6 +215,7 @@ The sync job must check and refresh tokens before making API calls:
 The Planta API returns data in a nested structure. Map fields as follows:
 
 **From API Response → To Supabase Plant Table:**
+
 - `data.id` → `id`
 - `data.names.custom` → `customName`
 - `data.names.localizedName` → `commonName`
@@ -223,11 +226,12 @@ The Planta API returns data in a nested structure. Map fields as follows:
 _Note: `data.names.variety` available in API but deferred to v2_
 
 **From API Response → To Supabase Photo Table:**
+
 - `data.image.url` → download and upload to Supabase Storage (path: `{plantId}/{currentTimestamp}.jpg` where timestamp = now), store resulting URL in `url`
 - `data.image.lastUpdated` → `date` (actual photo date)
 - `'planta'` → `source`
 
-_Note: See `docs/Planta-App-API-schemas.md` for complete API response structure with all available fields_
+_Note: See `docs/planta-app-api-schemas.md` for complete API response structure with all available fields_
 
 ### Sync Infrastructure & Implementation
 
@@ -249,7 +253,7 @@ _Note: See `docs/Planta-App-API-schemas.md` for complete API response structure 
      - Update `last_synced_at` timestamp on plant record
   4. **Log results**: Write sync summary to `sync_logs` table (plants checked, photos added, errors)
 - **Manual Trigger**: Support optional `?manual=true` query parameter for testing during development
-- **Error Handling**: 
+- **Error Handling**:
   - If token refresh fails: exit gracefully, log to `sync_logs` with status 'failed'
   - If individual plant fails: wrap in try-catch, log error, continue to next plant
   - Log all errors to `sync_logs.errors` (jsonb) for manual review
@@ -267,14 +271,17 @@ The Next.js app reads data directly from Supabase using Server Components (no AP
 #### Key Queries
 
 **Home Page** - Get all plants with their most recent photo:
+
 ```typescript
 const { data: plants } = await supabase
-  .from('plants')
-  .select(`
+  .from("plants")
+  .select(
+    `
     *,
     photos(url, date)
-  `)
-  .order('commonName', { ascending: true })
+  `
+  )
+  .order("commonName", { ascending: true });
 
 // Then in your component:
 // - Get most recent photo for each plant: photos.sort((a, b) => new Date(b.date) - new Date(a.date))[0]
@@ -282,15 +289,18 @@ const { data: plants } = await supabase
 ```
 
 **Plant Detail Page** - Get single plant with all photos:
+
 ```typescript
 const { data: plant } = await supabase
-  .from('plants')
-  .select(`
+  .from("plants")
+  .select(
+    `
     *,
     photos(*)
-  `)
-  .eq('id', plantId)
-  .single()
+  `
+  )
+  .eq("id", plantId)
+  .single();
 
 // Sort photos newest first in the component
 ```
@@ -318,13 +328,13 @@ _Note: With only ~55 plants, loading all at once is more performant than paginat
 
 For MVP, keep error handling simple. Log everything to `sync_logs` table and fix issues manually.
 
-- **Token refresh fails**: 
+- **Token refresh fails**:
   - Log critical error to `sync_logs` with status 'failed' and clear error message
   - Include recovery instructions in error log: "Refresh token expired - re-authenticate at https://getplanta.com/apps"
   - Exit sync gracefully
   - Check `sync_logs` table regularly for failures (recommended: weekly or after noticing missing photos)
 - **Individual plant fails** (API error, photo download fails, etc.): Log the error, skip that plant, continue with others
-- **Image processing errors**: 
+- **Image processing errors**:
   - Wrap image download/upload in try-catch
   - On failure: log error to `sync_logs.errors` with plant ID and error message
   - Continue to next plant (don't crash entire sync)
@@ -336,7 +346,6 @@ For MVP, keep error handling simple. Log everything to `sync_logs` table and fix
 ### Accessibility, Performance & Responsiveness
 
 - **Accessibility**:
-
   - Use semantic HTML (e.g. `header`, `nav`, `main`, `section`)
   - Ensure all images have meaningful `alt` text:
     - Gallery thumbnails: `"{plantName}"`
@@ -346,7 +355,6 @@ For MVP, keep error handling simple. Log everything to `sync_logs` table and fix
   - Meet WCAG AA color contrast standards
 
 - **Performance**:
-
   - Use Next.js `<Image>` component for all plant photos with `fill` prop for responsive sizing (handles lazy loading, optimization, and responsive srcSet automatically)
   - Compress assets and optimize static delivery
   - Use aspect-ratio containers with `position: relative` for Image fill to prevent layout shifts
@@ -382,17 +390,19 @@ This section documents the one-time setup required before the app can run:
    - Generate OTP code (valid for 15 minutes)
    - Exchange OTP for access + refresh tokens via `/v1/auth/authorize` endpoint
    - Insert tokens into Supabase `tokens` table via SQL or dashboard
-   - **See `docs/AUTHENTICATION_SETUP.md` for complete step-by-step guide**
+   - **See `docs/authentication-setup.md` for complete step-by-step guide**
 
 3. **Vercel Configuration**:
    - Set environment variable `CRON_SECRET` (random secure string)
    - Add `vercel.json` with cron configuration:
      ```json
      {
-       "crons": [{
-         "path": "/api/sync-plants",
-         "schedule": "0 2 * * *"
-       }]
+       "crons": [
+         {
+           "path": "/api/sync-plants",
+           "schedule": "0 2 * * *"
+         }
+       ]
      }
      ```
    - Deploy app to Vercel
@@ -435,4 +445,3 @@ This section documents the one-time setup required before the app can run:
 - **Sort & Filter Options**:
   - Sort by custom name, species, or location
   - Filter by room/location, species, variety, or date added
-
