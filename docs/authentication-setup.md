@@ -7,6 +7,7 @@ This guide walks you through the one-time setup process to authenticate with the
 **Authentication Type:** Custom OTP (One-Time Password) flow
 
 Unlike traditional OAuth 2.0, Planta uses a simplified flow where you:
+
 1. Create an "app" in their portal
 2. Receive a one-time code
 3. Exchange that code for access + refresh tokens
@@ -66,6 +67,7 @@ After creating the app, you'll see a dialog titled **"App created!"** with:
 - A copy button (clipboard icon) next to the code
 
 **Action:**
+
 1. **Copy the code immediately** using the clipboard icon
 2. **Proceed to Step 3 within 15 minutes**
 3. If the code expires, you'll need to create a new app
@@ -93,6 +95,7 @@ Now you'll exchange the OTP code for your access and refresh tokens using the AP
 8. Click **"Execute"**
 
 **Alternative:** You can also use curl or Postman if you prefer:
+
 ```bash
 curl -X POST https://public.planta-api.com/v1/auth/authorize \
   -H "Content-Type: application/json" \
@@ -179,11 +182,13 @@ If you get a **401 Unauthorized** error, your token may have expired or is inval
 ## Token Management
 
 ### Access Token
+
 - **Lifetime:** Approximately 1 hour (check `expiresAt` field)
 - **Usage:** Include in `Authorization: Bearer {token}` header for all API calls
 - **Refresh:** Automatically refreshed by your sync job when needed
 
 ### Refresh Token
+
 - **Lifetime:** Long-lived (weeks/months - Planta doesn't specify exact duration)
 - **Usage:** Exchange for new access token when current one expires
 - **Endpoint:** `POST /v1/auth/refreshToken`
@@ -217,7 +222,8 @@ This means you don't need to manually refresh tokens - the sync job handles it f
 
 **Problem:** Token is invalid or expired.
 
-**Solution:** 
+**Solution:**
+
 1. Check that you copied the full token (they're quite long!)
 2. Verify the token is in your database correctly
 3. Try refreshing the token using the refresh endpoint
@@ -230,6 +236,7 @@ This means you don't need to manually refresh tokens - the sync job handles it f
 **Problem:** Refresh token has expired or been revoked.
 
 **Solution:**
+
 1. Check the Planta App Portal - your app might have been revoked
 2. Create a new app and repeat the authentication flow
 3. Consider keeping a backup refresh token in Vercel environment variables
@@ -303,4 +310,3 @@ If you encounter any issues, check the `sync_logs` table for error details.
 - **API Documentation:** https://getplanta.com/apps/api
 - **API Base URL:** https://public.planta-api.com
 - **Your Spec:** See `Plantfolio-MVP-Spec.md` for architecture details
-

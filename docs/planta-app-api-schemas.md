@@ -118,6 +118,7 @@
 `/v1/addedPlants/{id}`
 
 ##Example Value Schema
+
 ```
 {
   "status": 200,
