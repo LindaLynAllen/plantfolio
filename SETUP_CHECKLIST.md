@@ -58,22 +58,22 @@ Use this checklist to track your progress setting up the Plantfolio application.
 
 ### ☐ Create Plant Card Component
 
-- [ ] Design thumbnail display
-- [ ] Show plant name with fallback logic
-- [ ] Add hover states
+- [x] Design thumbnail display
+- [x] Show plant name with fallback logic
+- [x] Add hover states
 
 ### ☐ Build Plant Gallery
 
-- [ ] Create grid layout (5+ columns on desktop)
-- [ ] Fetch plants from Supabase
-- [ ] Display loading state
-- [ ] Handle empty state
+- [x] Create grid layout (5+ columns on desktop)
+- [x] Fetch plants from Supabase
+- [x] Display loading state
+- [x] Handle empty state
 
 ### ☐ Add Navigation
 
-- [ ] Create navbar with logo and title
-- [ ] Add footer with contact links
-- [ ] Make responsive
+- [x] Create navbar with logo and title
+- [x] Add footer with contact links
+- [x] Make responsive
 
 ---
 

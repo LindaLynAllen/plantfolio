@@ -1,3 +1,13 @@
+import { supabase } from "@/lib/supabase/client";
+import { notFound } from "next/navigation";
+import { PlantHeader } from "@/components/PlantHeader";
+import { PlantDetail } from "@/components/PlantDetail";
+import { PlantWithPhotos } from "@/types";
+
+type PlantDetailPageProps = {
+  params: Promise<{ id: string }>;
+};
+
 /**
  * Plant Detail Page
  *
@@ -7,35 +17,43 @@
  * - Location
  * - Main photo (most recent)
  * - Photo timeline grid with all historical photos
+ * - Lightbox for full-screen photo viewing
  *
- * Data fetching:
- * - Uses Server Component with direct Supabase query
- * - Fetches single plant by ID with all photos
- * - Photos sorted newest first
- *
+ * Server Component that fetches data from Supabase.
  * Route: /plants/[id]
- *
- * TODO: Implement plant detail view with photo gallery and lightbox
  */
-
-type PlantDetailPageProps = {
-  params: Promise<{
-    id: string;
-  }>;
-};
-
 export default async function PlantDetailPage({
   params,
 }: PlantDetailPageProps) {
   const { id } = await params;
 
+  // Fetch plant with all photos
+  const { data: plant, error } = await supabase
+    .from("plants")
+    .select(
+      `
+      *,
+      photos (
+        id,
+        url,
+        date,
+        source,
+        created_at
+      )
+    `
+    )
+    .eq("id", id)
+    .single();
+
+  // Handle not found or error
+  if (error || !plant) {
+    notFound();
+  }
+
   return (
-    <div className="min-h-screen p-8">
-      <h1 className="mb-4 text-4xl font-bold">Plant Detail: {id}</h1>
-      <p className="text-gray-600">
-        Plant details and photo timeline will be displayed here. This is a
-        placeholder.
-      </p>
+    <div className="container mx-auto px-4 py-8">
+      <PlantHeader plant={plant} />
+      <PlantDetail plant={plant as PlantWithPhotos} />
     </div>
   );
 }
