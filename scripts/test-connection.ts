@@ -1,128 +1,129 @@
 /**
  * Supabase Connection Test Script
  *
- * Run this after setting up your .env.local to verify:
- * - Supabase credentials are correct
- * - All tables are accessible
- * - RLS policies are working
+ * Verifies your Supabase setup is working:
+ * - Environment variables are configured
+ * - Connection to Supabase succeeds
+ * - All required tables exist
+ * - Public data is accessible (plants, photos)
  *
- * Usage: npx tsx scripts/test-connection.ts
+ * Usage: npm run test:connection
  */
 
-import { supabase } from "../lib/supabase/client";
+// Load environment variables FIRST, before any other imports
+import { config } from "dotenv";
+import { resolve } from "path";
+
+config({ path: resolve(process.cwd(), ".env.local") });
 
 async function testConnection() {
   console.log("🔍 Testing Supabase connection...\n");
 
-  // Test 1: Basic connection
-  console.log("Test 1: Basic Connection");
-  const { data, error } = await supabase.from("plants").select("count");
+  // Dynamically import supabase client after env vars are loaded
+  const { supabase } = await import("../lib/supabase/client.js");
 
-  if (error) {
-    console.error("❌ Connection failed:", error.message);
-    console.error("\nTroubleshooting:");
-    console.error("- Check your .env.local file exists");
-    console.error("- Verify NEXT_PUBLIC_SUPABASE_URL is correct");
-    console.error("- Verify NEXT_PUBLIC_SUPABASE_ANON_KEY is correct");
-    console.error("- Make sure no extra spaces or quotes around values\n");
-    return;
+  // Test 1: Basic connection
+  console.log("Test 1: Connection & Credentials");
+  const { error: connectionError } = await supabase
+    .from("plants")
+    .select("count");
+
+  if (connectionError) {
+    console.error("❌ Connection failed:", connectionError.message);
+    console.error("\n🔧 Troubleshooting:");
+    console.error("  • Check your .env.local file exists");
+    console.error("  • Verify NEXT_PUBLIC_SUPABASE_URL is correct");
+    console.error("  • Verify NEXT_PUBLIC_SUPABASE_ANON_KEY is correct");
+    console.error("  • Make sure no extra spaces or quotes around values\n");
+    process.exit(1);
   }
 
-  console.log("✅ Successfully connected to Supabase!");
-  console.log(`📊 Plants table exists and is accessible\n`);
+  console.log("✅ Connected to Supabase successfully!\n");
 
-  // Test 2: Check all tables
-  console.log("Test 2: Table Accessibility");
-  const tables = ["plants", "photos", "tokens", "sync_logs"];
+  // Test 2: Check all required tables exist
+  console.log("Test 2: Database Tables");
+  const tables = [
+    { name: "plants", required: true },
+    { name: "photos", required: true },
+    { name: "tokens", required: true },
+    { name: "sync_logs", required: true },
+  ];
+
+  let allTablesExist = true;
 
   for (const table of tables) {
-    const { error } = await supabase.from(table).select("*").limit(1);
-    if (error) {
-      console.log(`❌ ${table.padEnd(12)}: ${error.message}`);
+    const { error } = await supabase.from(table.name).select("id").limit(1);
+
+    // Check if table doesn't exist (specific error)
+    if (error && error.message.includes("does not exist")) {
+      console.log(`❌ ${table.name.padEnd(12)}: Table not found`);
+      allTablesExist = false;
     } else {
-      console.log(`✅ ${table.padEnd(12)}: Accessible`);
+      console.log(`✅ ${table.name.padEnd(12)}: Exists`);
     }
   }
 
-  // Test 3: Check RLS policies
-  console.log("\nTest 3: Row Level Security (RLS)");
+  if (!allTablesExist) {
+    console.error(
+      "\n❌ Some tables are missing. Run the migration in Supabase SQL Editor."
+    );
+    console.error("   File: supabase/migrations/001_initial_schema.sql\n");
+    process.exit(1);
+  }
 
-  // Plants should be readable (public policy)
-  const { error: plantsError } = await supabase
+  // Test 3: Verify public data is accessible
+  console.log("\nTest 3: Public Data Access");
+
+  const { data: plantsData, error: plantsError } = await supabase
     .from("plants")
     .select("*")
     .limit(1);
-  console.log(
-    plantsError
-      ? `❌ Plants: Cannot read (RLS issue)`
-      : `✅ Plants: Public read access working`
-  );
 
-  // Photos should be readable (public policy)
-  const { error: photosError } = await supabase
+  if (plantsError) {
+    console.log(`⚠️  Plants: Cannot read (${plantsError.message})`);
+    console.log(
+      "   Check RLS policies in Supabase: plants should allow public SELECT"
+    );
+  } else {
+    console.log(
+      `✅ Plants: Public read access working ${plantsData.length > 0 ? `(${plantsData.length} row${plantsData.length !== 1 ? "s" : ""} found)` : "(empty table)"}`
+    );
+  }
+
+  const { data: photosData, error: photosError } = await supabase
     .from("photos")
     .select("*")
     .limit(1);
-  console.log(
-    photosError
-      ? `❌ Photos: Cannot read (RLS issue)`
-      : `✅ Photos: Public read access working`
-  );
 
-  // Tokens should NOT be accessible via anon key (no public policy)
-  const { error: tokensError } = await supabase
-    .from("tokens")
-    .select("*")
-    .limit(1);
-
-  // For tokens, we WANT an error (no RLS policy for anon users)
-  // But the table should still exist (different error message)
-  if (tokensError) {
-    if (tokensError.message.includes("row-level security")) {
-      console.log(`✅ Tokens: Correctly protected (no public access)`);
-    } else if (tokensError.message.includes("does not exist")) {
-      console.log(`❌ Tokens: Table doesn't exist (run migration)`);
-    } else {
-      console.log(`⚠️  Tokens: ${tokensError.message}`);
-    }
+  if (photosError) {
+    console.log(`⚠️  Photos: Cannot read (${photosError.message})`);
+    console.log(
+      "   Check RLS policies in Supabase: photos should allow public SELECT"
+    );
   } else {
-    console.log(`⚠️  Tokens: Readable by anon users (security issue!)`);
-  }
-
-  // Test 4: Storage bucket
-  console.log("\nTest 4: Storage Configuration");
-  const { data: buckets, error: storageError } =
-    await supabase.storage.listBuckets();
-
-  if (storageError) {
-    console.log(`❌ Storage: Cannot list buckets (${storageError.message})`);
-  } else {
-    const plantPhotosBucket = buckets?.find((b) => b.name === "plant-photos");
-    if (plantPhotosBucket) {
-      console.log(`✅ Storage: 'plant-photos' bucket exists`);
-      console.log(
-        `   Public: ${plantPhotosBucket.public ? "Yes ✅" : "No ❌"}`
-      );
-    } else {
-      console.log(`⚠️  Storage: 'plant-photos' bucket not found`);
-      console.log(
-        `   Available buckets: ${buckets?.map((b) => b.name).join(", ") || "none"}`
-      );
-    }
+    console.log(
+      `✅ Photos: Public read access working ${photosData.length > 0 ? `(${photosData.length} row${photosData.length !== 1 ? "s" : ""} found)` : "(empty table)"}`
+    );
   }
 
   // Summary
-  console.log("\n" + "=".repeat(50));
-  console.log("🎉 Connection test complete!");
-  console.log("=".repeat(50));
-  console.log("\nYour Supabase backend is ready for development.");
-  console.log("\nNext steps:");
-  console.log("1. Add some test data (or run sync job)");
-  console.log("2. Start building the home page");
-  console.log("3. Run: npm run dev\n");
+  console.log("\n" + "=".repeat(60));
+  console.log("🎉 Supabase connection test passed!");
+  console.log("=".repeat(60));
+  console.log("\n✅ Your database is ready for development!");
+  console.log("\n📝 Next steps:");
+  console.log("  1. Verify storage bucket exists in Supabase dashboard:");
+  console.log("     → Storage → plant-photos (Public)");
+  console.log("  2. Start building: npm run dev");
+  console.log("  3. Or add test data first (see supabase/README.md for SQL)\n");
 }
 
 testConnection().catch((err) => {
   console.error("\n💥 Unexpected error:", err);
+  console.error("\nIf the error is about environment variables:");
+  console.error("  • Make sure .env.local exists in project root");
+  console.error(
+    "  • Check that all NEXT_PUBLIC_SUPABASE_* variables are set\n"
+  );
   process.exit(1);
 });

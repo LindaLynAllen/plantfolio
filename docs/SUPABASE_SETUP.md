@@ -72,16 +72,11 @@ Your plant photos need a home in Supabase Storage:
 
 3. **Verify bucket is public:**
    - Click on the `plant-photos` bucket
-   - Go to **"Settings"** tab
-   - Confirm **"Public bucket"** is enabled
+   - Confirm **"Public bucket"** label is visible at the top
 
 ### Why Public?
 
-Your plant photos are meant to be displayed on your public website. Making the bucket public allows direct access to image URLs without authentication. Supabase will generate public URLs like:
-
-```
-https://[project-id].supabase.co/storage/v1/object/public/plant-photos/abc123/1705287900000.jpg
-```
+Your plant photos are meant to be displayed on your public website. Making the bucket public allows direct access to image URLs without authentication.
 
 ---
 
@@ -165,102 +160,68 @@ Now let's set up your environment variables:
 
 ## Step 6: Verify Connection
 
-Let's make sure everything is working:
+Let's test that everything is working:
 
-1. **Create a test script:**
-
-   Create `test-connection.ts` in your project root:
-
-   ```typescript
-   import { supabase } from "./lib/supabase/client";
-
-   async function testConnection() {
-     console.log("Testing Supabase connection...\n");
-
-     // Test 1: Check connection
-     const { data, error } = await supabase.from("plants").select("count");
-
-     if (error) {
-       console.error("❌ Connection failed:", error.message);
-       return;
-     }
-
-     console.log("✅ Successfully connected to Supabase!");
-     console.log(`📊 Plants table exists (count query worked)`);
-
-     // Test 2: Check all tables
-     const tables = ["plants", "photos", "tokens", "sync_logs"];
-     for (const table of tables) {
-       const { error } = await supabase.from(table).select("*").limit(1);
-       if (error) {
-         console.log(`❌ ${table}: ${error.message}`);
-       } else {
-         console.log(`✅ ${table}: Accessible`);
-       }
-     }
-
-     console.log("\n🎉 All tables are set up correctly!");
-   }
-
-   testConnection();
-   ```
-
-2. **Run the test:**
+1. **Run the connection test:**
 
    ```bash
-   npx tsx test-connection.ts
+   npm run test:connection
    ```
 
-3. **Expected output:**
+2. **Expected output:**
 
    ```
-   Testing Supabase connection...
+   🔍 Testing Supabase connection...
 
-   ✅ Successfully connected to Supabase!
-   📊 Plants table exists (count query worked)
-   ✅ plants: Accessible
-   ✅ photos: Accessible
-   ✅ tokens: Accessible
-   ✅ sync_logs: Accessible
+   Test 1: Connection & Credentials
+   ✅ Connected to Supabase successfully!
 
-   🎉 All tables are set up correctly!
+   Test 2: Database Tables
+   ✅ plants      : Exists
+   ✅ photos      : Exists
+   ✅ tokens      : Exists
+   ✅ sync_logs   : Exists
+
+   Test 3: Public Data Access
+   ✅ Plants: Public read access working (empty table)
+   ✅ Photos: Public read access working (empty table)
+
+   🎉 Supabase connection test passed!
+   ✅ Your database is ready for development!
    ```
 
-4. **If you see errors:**
+3. **If you see errors:**
    - Double-check your `.env.local` values
-   - Make sure there are no extra spaces or quotes
+   - Make sure there are no extra spaces or quotes around the keys
    - Verify the migration ran successfully in Supabase
-
-5. **Clean up:**
-   ```bash
-   # After successful test, delete the test file
-   rm test-connection.ts
-   ```
+   - Check that variable names match exactly (including `NEXT_PUBLIC_` prefix)
 
 ---
 
-## Step 7: Review Security Settings
+## Step 7: Verify Security (Optional)
 
-Let's verify your security configuration:
+Want to double-check your security configuration? Here's what to look for:
 
-### Check RLS Policies
+### RLS (Row Level Security) Status
 
 In Supabase dashboard:
 
-1. Go to **"Authentication"** → **"Policies"**
-2. You should see:
-   - **plants:** 1 policy (Allow public read access)
-   - **photos:** 1 policy (Allow public read access)
-   - **tokens:** 0 policies (service role only)
-   - **sync_logs:** 0 policies (service role only)
+1. Go to **Table Editor**
+2. Click on each table
+3. Look for the **"RLS enabled"** indicator
+
+**Expected configuration:**
+
+- **plants:** RLS enabled, 1 policy (public read)
+- **photos:** RLS enabled, 1 policy (public read)
+- **tokens:** RLS enabled, 0 policies (no public access)
+- **sync_logs:** RLS enabled, 0 policies (no public access)
 
 ### What This Means:
 
-- ✅ Anyone can **read** plants and photos (public website)
-- ❌ No one can **write** to plants/photos via public client (only sync job)
-- ❌ No one can **access** tokens or sync_logs via public client (admin only)
-
-This is exactly what we want! Your sensitive data is protected while public data is accessible.
+✅ Public visitors can view plants and photos (your website)  
+✅ Only your API routes can access tokens and sync logs (secure)  
+✅ No one can write to the database via public client (protected)
 
 ---
 
@@ -280,57 +241,47 @@ Your Supabase backend is now fully configured:
 
 Now that your database is ready, you can:
 
-1. **Build the home page** - Fetch and display plants
-2. **Test with sample data** - Add a test plant via SQL:
-   ```sql
-   INSERT INTO plants (id, "customName", "commonName", "scientificName", location)
-   VALUES ('test-1', 'My First Plant', 'Monstera', 'Monstera deliciosa', 'Living Room');
-   ```
-3. **Implement the sync job** - Connect to Planta API and populate your real data
+1. **Add test data** (optional) - See `supabase/README.md` for SQL examples
+2. **Start building the home page** - Display your plant gallery
+3. **Run the dev server** - `npm run dev`
 
 ---
 
 ## Troubleshooting
 
-### Error: "relation 'plants' does not exist"
+### Connection test fails with "Missing environment variables"
+
+- Verify `.env.local` exists in project root (not in a subdirectory)
+- Check that variable names are spelled correctly
+- Make sure there are no quotes around the values
+- Restart your terminal/editor after creating `.env.local`
+
+### "Table does not exist" errors
 
 - The migration didn't run successfully
 - Go back to Step 2 and run the SQL migration again
+- Check for any error messages in the SQL Editor
 
-### Error: "Invalid API key"
+### "Cannot read plants/photos" errors
 
-- Check your `.env.local` file for typos
-- Make sure you copied the full key (they're very long!)
-- Verify no extra spaces or quotes around the keys
+- RLS policies might not be set up correctly
+- Re-run the migration (it's safe to run multiple times)
+- Check the **Authentication → Policies** section in Supabase dashboard
 
-### Error: "Cross-Origin Request Blocked"
+### Storage bucket not found
 
-- Supabase might have CORS restrictions
-- Go to **Settings → API → CORS** and add `http://localhost:3000`
-
-### Storage uploads fail
-
-- Verify the `plant-photos` bucket is set to **public**
-- Check bucket name matches exactly: `plant-photos` (with hyphen)
-
-### Can't insert into tokens table (second row)
-
-- This is expected! The trigger prevents multiple rows
-- Use `UPDATE` instead of `INSERT` to modify tokens
+- Verify bucket name is exactly `plant-photos` (with hyphen)
+- Check that it's set to **Public** in the Storage section
+- You may need to create it manually via the dashboard
 
 ---
 
-## Useful Supabase Dashboard Links
+## Useful Links
 
-Quick reference for common tasks:
-
-- **Table Editor:** View and edit data
-- **SQL Editor:** Run custom queries
-- **Storage:** Manage files and buckets
-- **Authentication → Policies:** Review RLS rules
-- **Settings → API:** Get credentials
-- **Logs:** Debug errors (Storage, PostgREST, Auth)
+- [Supabase Documentation](https://supabase.com/docs)
+- [Row Level Security Guide](https://supabase.com/docs/guides/auth/row-level-security)
+- [Supabase Storage Guide](https://supabase.com/docs/guides/storage)
 
 ---
 
-**Questions or issues?** Check the [Supabase Documentation](https://supabase.com/docs) or refer back to `docs/plantfolio-mvp-spec.md` for architecture details.
+**Questions or issues?** Check `supabase/README.md` for SQL query examples, or refer back to `docs/plantfolio-mvp-spec.md` for architecture details.
