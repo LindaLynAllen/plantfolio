@@ -128,12 +128,15 @@ If successful, you'll receive a **200 OK** response with this structure:
 
 Now store these tokens in your Supabase `tokens` table.
 
+**Important:** The database schema only allows one row in the `tokens` table. If you've already run the initial migration, you'll need to **UPDATE** the existing row instead of inserting a new one.
+
 #### Option A: Using Supabase SQL Editor
 
 1. Go to your Supabase project dashboard
 2. Navigate to **SQL Editor**
-3. Create a new query with:
+3. Choose the appropriate query based on your situation:
 
+**If this is your first time setting up tokens (no existing row):**
 ```sql
 INSERT INTO tokens (id, access_token, refresh_token, expires_at, updated_at)
 VALUES (
@@ -145,14 +148,29 @@ VALUES (
 );
 ```
 
+**If you already have a row in the tokens table (most common after running migrations):**
+```sql
+UPDATE tokens 
+SET 
+  access_token = 'PASTE_ACCESS_TOKEN_HERE',
+  refresh_token = 'PASTE_REFRESH_TOKEN_HERE', 
+  expires_at = 'PASTE_EXPIRES_AT_HERE',
+  updated_at = NOW()
+WHERE id = (SELECT id FROM tokens LIMIT 1);
+```
+
 4. Replace the placeholder values with your actual tokens
 5. Run the query
 
 #### Option B: Using Supabase Table Editor
 
 1. Go to **Table Editor** → `tokens` table
-2. Click **"Insert row"**
-3. Fill in the fields:
+2. **If you see an existing row:** Click on it to edit the existing record
+   - Update the `access_token` field with your new accessToken value
+   - Update the `refresh_token` field with your new refreshToken value  
+   - Update the `expires_at` field with your new expiresAt timestamp
+   - The `updated_at` field will automatically update
+3. **If the table is empty:** Click **"Insert row"**
    - `id`: Leave empty (auto-generated)
    - `access_token`: Paste the accessToken value
    - `refresh_token`: Paste the refreshToken value

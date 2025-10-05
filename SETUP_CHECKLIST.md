@@ -81,21 +81,21 @@ Use this checklist to track your progress setting up the Plantfolio application.
 
 ### ☐ Dynamic Route Setup
 
-- [ ] Fetch single plant by ID
-- [ ] Handle 404 for missing plants
-- [ ] Display plant metadata
+- [x] Fetch single plant by ID
+- [x] Handle 404 for missing plants
+- [x] Display plant metadata
 
 ### ☐ Photo Timeline
 
-- [ ] Display all photos newest first
-- [ ] Format dates properly
-- [ ] Handle "no photos" state
+- [x] Display all photos newest first
+- [x] Format dates properly
+- [x] Handle "no photos" state
 
 ### ☐ Lightbox Integration
 
-- [ ] Set up yet-another-react-lightbox
-- [ ] Add click handlers
-- [ ] Enable arrow navigation
+- [x] Set up yet-another-react-lightbox
+- [x] Add click handlers
+- [x] Enable arrow navigation
 
 ---
 
@@ -103,10 +103,10 @@ Use this checklist to track your progress setting up the Plantfolio application.
 
 ### ☐ Planta API Authentication
 
-- [ ] Create app in Planta portal
-- [ ] Get OTP code
-- [ ] Exchange for tokens
-- [ ] Store in Supabase tokens table
+- [x] Create app in Planta portal
+- [x] Get OTP code
+- [x] Exchange for tokens
+- [x] Store in Supabase tokens table
 
 **📖 Detailed guide:** [`docs/authentication-setup.md`](docs/authentication-setup.md)
 
@@ -137,6 +137,7 @@ Use this checklist to track your progress setting up the Plantfolio application.
 ### ☐ Styling & UX
 
 - [ ] Responsive on mobile/tablet/desktop
+= [ ] Revisit and finetune the styling
 - [ ] Add loading skeletons
 - [ ] Improve error messages
 - [ ] Accessibility audit (WCAG AA)
